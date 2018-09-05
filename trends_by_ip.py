@@ -28,6 +28,11 @@ def from_aws(ip):
         is_aws = is_aws or (ipaddress.ip_address(ip) in nw)
     return is_aws
 
+def aws_cidr(ip):
+    for nw in AWS_NETWORKS:
+        if (ipaddress.ip_address(ip) in nw):
+            return nw
+
 def _scraped_off_part_not_i_need(origin_log):
     # *.gz と分ける
     cat_cmd = "cat"
@@ -68,7 +73,7 @@ def timedeltas_each_ip(stream):
 def list_of_ips(timedeltas_each_ip):
     for ip, deltas in timedeltas_each_ip:
         delta_seconds = [d.seconds for d in deltas]
-        aws = 'AWS' if from_aws(ip) else ''
+        aws = aws_cidr(ip)
         if len(delta_seconds) > 5:
             yield ('{0} {1:.1f} {2} {3}'.format(
                 ip,
